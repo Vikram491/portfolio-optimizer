@@ -6,7 +6,6 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from portfolio import calculate_portfolio
-from tensorflow.keras.models import load_model
 
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(page_title="Premium Portfolio AI", layout="wide")
@@ -49,7 +48,7 @@ run = st.sidebar.button("🚀 Run Analysis")
 # -------------------- HEADER --------------------
 st.markdown("""
 <h1 class="title">🚀 Premium AI Portfolio Dashboard</h1>
-<p style='color:gray;'>Smart Investment Insights using ML + Deep Learning</p>
+<p style='color:gray;'>Smart Investment Insights using Machine Learning</p>
 """, unsafe_allow_html=True)
 
 # -------------------- MAIN --------------------
@@ -136,31 +135,18 @@ if run:
     st.markdown("---")
 
     # -------------------- PREDICTIONS --------------------
-    st.markdown("## 🔮 Predictions (RF vs LSTM)")
+    st.markdown("## 🔮 Predictions (Random Forest)")
 
     for stock in stocks:
         try:
-            # RF
-            rf_model = joblib.load(f"models/{stock}_model.pkl")
+            model = joblib.load(f"models/{stock}_model.pkl")
             last_price = data[stock].iloc[-1]
-            rf_pred = rf_model.predict([[last_price]])[0]
-
-            # LSTM
-            lstm_model = load_model(f"models/{stock}_lstm.h5")
-            scaler = joblib.load(f"models/{stock}_scaler.pkl")
-
-            last_10 = data[stock].values[-10:].reshape(-1, 1)
-            scaled = scaler.transform(last_10)
-
-            X_input = np.array([scaled])
-            lstm_pred = lstm_model.predict(X_input, verbose=0)
-            lstm_pred = scaler.inverse_transform(lstm_pred)[0][0]
+            pred = model.predict([[last_price]])[0]
 
             st.markdown(f"""
             <div class="card">
             <b>{stock}</b><br>
-            RF Prediction: {rf_pred:.2f}<br>
-            LSTM Prediction: {lstm_pred:.2f}
+            Predicted Next Price: {pred:.2f}
             </div>
             """, unsafe_allow_html=True)
 
@@ -177,9 +163,9 @@ if run:
     else:
         st.warning("⚠️ Portfolio is weak. Try different stocks or risk level.")
 
-    st.markdown("## 🧠 Models Used")
-    st.info("Random Forest + LSTM (Deep Learning)")
+    st.markdown("## 🧠 Model Used")
+    st.info("Random Forest Machine Learning Model")
 
 # -------------------- FOOTER --------------------
 st.markdown("---")
-st.caption("Built with ❤️ using Streamlit | ML + LSTM | Portfolio Optimization")
+st.caption("Built with ❤️ using Streamlit | ML | Portfolio Optimization")
